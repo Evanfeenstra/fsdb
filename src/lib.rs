@@ -5,6 +5,7 @@ mod fs_utils;
 pub use bucket::Bucket;
 pub use double_bucket::DoubleBucket;
 
+use fs_utils::maxify;
 use std::fmt::Debug;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -41,16 +42,23 @@ impl Fsdb {
     }
 
     // Create new bucket
-    pub fn bucket<V: Serialize + DeserializeOwned>(&self, p: &str) -> Result<Bucket<V>> {
-        Ok(Bucket::new(self.make_dir(p)?.into(), None))
+    pub fn bucket<V: Serialize + DeserializeOwned>(
+        &self,
+        p: &str,
+        max_file_name: Option<usize>,
+    ) -> Result<Bucket<V>> {
+        let p2 = maxify(p, max_file_name);
+        Ok(Bucket::new(self.make_dir(&p2)?.into(), max_file_name))
     }
 
     // Create new bucket with another level directory
     pub fn double_bucket<V: Serialize + DeserializeOwned>(
         &self,
         p: &str,
+        max_file_name: Option<usize>,
     ) -> Result<DoubleBucket<V>> {
-        Ok(DoubleBucket::new(self.make_dir(p)?.into(), None))
+        let p2 = maxify(p, max_file_name);
+        Ok(DoubleBucket::new(self.make_dir(&p2)?.into(), max_file_name))
     }
 
     fn make_dir(&self, p: &str) -> Result<PathBuf> {
@@ -75,13 +83,15 @@ mod tests {
 
     #[test]
     fn test_db() {
-        let db = Fsdb::new("testdb").expect("fail Fsdb::new");
-        let mut b = db.bucket("hi").expect("fail bucket");
-        b.set_max_file_name(8);
+        let db = Fsdb::new("testdb/db1").expect("fail Fsdb::new");
+        let b = db.bucket("hi1234567890", Some(8)).expect("fail bucket");
         let t1 = Thing { n: 1 };
+        println!("PUT NOW");
         b.put("keythatisverylong", t1.clone())
             .expect("failed to save");
+        println!("PUTUED!");
         let t2: Thing = b.get("keythatisverylong").expect("fail to load");
+        println!("GOTTEN");
         println!("t {:?}", t2.clone());
         assert_eq!(t1, t2);
         let list = b.list().expect("fail list");
@@ -90,8 +100,8 @@ mod tests {
 
     #[test]
     fn test_double() {
-        let db = Fsdb::new("testdb2").expect("fail Fsdb::new");
-        let b = db.double_bucket("hi").expect("fail bucket");
+        let db = Fsdb::new("testdb/db2").expect("fail Fsdb::new");
+        let b = db.double_bucket("hi", None).expect("fail bucket");
         let t1 = Thing { n: 1 };
         b.put("sub1", "key", t1.clone()).expect("failed to save");
         let t2: Thing = b.get("sub1", "key").expect("fail to load");

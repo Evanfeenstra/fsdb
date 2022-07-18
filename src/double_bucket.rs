@@ -19,21 +19,17 @@ impl<V: Serialize + DeserializeOwned> DoubleBucket<V> {
             _v: PhantomData,
         }
     }
-    /// Set a max file name length for this bucket
-    pub fn set_max_file_name(&mut self, x: usize) {
-        self.max_file_name = Some(x);
-    }
     /// Check if a key exists within sub-bucket
     pub fn exists(&self, sub: &str, key: &str) -> bool {
         let mut path = self.dir.clone();
-        path.push(sub);
+        path.push(self.maxify(sub));
         path.push(self.maxify(key));
         path.exists()
     }
     /// Create a key in a sub-bucket
     pub fn put(&self, sub: &str, key: &str, value: V) -> Result<()> {
         let mut path = self.dir.clone();
-        path.push(sub);
+        path.push(self.maxify(sub));
         if !Path::new(&path).exists() {
             std::fs::create_dir(path.clone())?;
         }
@@ -43,27 +39,27 @@ impl<V: Serialize + DeserializeOwned> DoubleBucket<V> {
     /// Get a key in a sub-bucket
     pub fn get(&self, sub: &str, key: &str) -> Result<V> {
         let mut path = self.dir.clone();
-        path.push(sub);
+        path.push(self.maxify(sub));
         path.push(self.maxify(key));
         fs_get(path)
     }
     /// Delete a file in a sub-bucket
     pub fn remove(&self, sub: &str, key: &str) -> Result<()> {
         let mut path = self.dir.clone();
-        path.push(sub);
+        path.push(self.maxify(sub));
         path.push(self.maxify(key));
         fs_remove(path)
     }
     /// List keys in this bucket's sub-bucket
     pub fn list(&self, sub: &str) -> Result<Vec<String>> {
         let mut path = self.dir.clone();
-        path.push(sub);
+        path.push(self.maxify(sub));
         fs_list(path)
     }
     /// Clear all keys in this sub-bucket
     pub fn clear(&self, sub: &str) -> Result<()> {
         let mut path = self.dir.clone();
-        path.push(sub);
+        path.push(self.maxify(sub));
         fs_clear(path)
     }
     /// Clear all keys in the bucket

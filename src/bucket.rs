@@ -19,10 +19,6 @@ impl<V: Serialize + DeserializeOwned> Bucket<V> {
             _v: PhantomData,
         }
     }
-    /// Set a max file name length for this bucket
-    pub fn set_max_file_name(&mut self, x: usize) {
-        self.max_file_name = Some(x);
-    }
     /// Check if a key exists
     pub fn exists(&self, key: &str) -> bool {
         let mut path = self.dir.clone();
@@ -32,7 +28,9 @@ impl<V: Serialize + DeserializeOwned> Bucket<V> {
     /// Create a key
     pub fn put(&self, key: &str, value: V) -> Result<()> {
         let mut path = self.dir.clone();
+        println!("PUT PATH {:?}", path);
         path.push(self.maxify(key));
+        println!("PUT PATH2 {:?}", path);
         fs_put(path, value)
     }
     /// Get a key

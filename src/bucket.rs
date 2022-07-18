@@ -28,9 +28,7 @@ impl<V: Serialize + DeserializeOwned> Bucket<V> {
     /// Create a key
     pub fn put(&self, key: &str, value: V) -> Result<()> {
         let mut path = self.dir.clone();
-        println!("PUT PATH {:?}", path);
         path.push(self.maxify(key));
-        println!("PUT PATH2 {:?}", path);
         fs_put(path, value)
     }
     /// Get a key

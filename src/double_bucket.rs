@@ -19,6 +19,10 @@ impl<V: Serialize + DeserializeOwned> DoubleBucket<V> {
             _v: PhantomData,
         }
     }
+    /// Set a max file name length for this bucket
+    pub fn set_max_file_name(&mut self, x: usize) {
+        self.max_file_name = Some(x);
+    }
     /// Check if a key exists within sub-bucket
     pub fn exists(&self, sub: &str, key: &str) -> bool {
         let mut path = self.dir.clone();

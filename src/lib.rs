@@ -2,8 +2,8 @@ mod bucket;
 mod double_bucket;
 mod fs_utils;
 
-use bucket::Bucket;
-use double_bucket::DoubleBucket;
+pub use bucket::Bucket;
+pub use double_bucket::DoubleBucket;
 
 use std::fmt::Debug;
 use std::fs;

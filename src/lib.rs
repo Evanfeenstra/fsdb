@@ -89,7 +89,7 @@ mod tests {
         println!("PUT NOW");
         b.put("keythatisverylong", t1.clone())
             .expect("failed to save");
-        println!("PUTUED!");
+        println!("PUTTED!");
         let t2: Thing = b.get("keythatisverylong").expect("fail to load");
         println!("GOTTEN");
         println!("t {:?}", t2.clone());

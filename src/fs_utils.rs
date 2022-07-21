@@ -21,10 +21,8 @@ pub fn fs_list(path: PathBuf) -> Result<Vec<String>> {
     let mut r = Vec::new();
     paths.for_each(|name| {
         if let Ok(na) = name {
-            let pathbuf = na.path();
-            let path = pathbuf.to_string_lossy();
-            if let Some(file) = path.split("/").last() {
-                r.push(file.to_string());
+            if let Ok(n) = na.file_name().into_string() {
+                r.push(n);
             }
         }
     });

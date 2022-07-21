@@ -19,6 +19,10 @@ impl<V: Serialize + DeserializeOwned> DoubleBucket<V> {
             _v: PhantomData,
         }
     }
+    /// dir of this bucket
+    pub fn dir(&self) -> String {
+        self.dir.to_string_lossy().to_string()
+    }
     /// Check if a key exists within sub-bucket
     pub fn exists(&self, sub: &str, key: &str) -> bool {
         let mut path = self.dir.clone();

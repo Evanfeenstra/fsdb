@@ -19,6 +19,10 @@ impl<V: Serialize + DeserializeOwned> Bucket<V> {
             _v: PhantomData,
         }
     }
+    /// dir of this bucket
+    pub fn dir(&self) -> String {
+        self.dir.to_string_lossy().to_string()
+    }
     /// Check if a key exists
     pub fn exists(&self, key: &str) -> bool {
         let mut path = self.dir.clone();

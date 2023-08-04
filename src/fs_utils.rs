@@ -4,9 +4,9 @@ use serde::{de::DeserializeOwned, Serialize};
 use std::fs;
 use std::path::PathBuf;
 
-pub fn fs_put<V: Serialize + DeserializeOwned>(path: PathBuf, value: V) -> Result<()> {
+pub fn fs_put<V: Serialize + DeserializeOwned>(path: PathBuf, value: &V) -> Result<()> {
     let mut f = fs::File::create(path.clone())?;
-    encode::write(&mut f, &value)?;
+    encode::write(&mut f, value)?;
     Ok(())
 }
 pub fn fs_get<V: Serialize + DeserializeOwned>(path: PathBuf) -> Result<V> {

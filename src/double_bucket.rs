@@ -31,7 +31,7 @@ impl<V: Serialize + DeserializeOwned> DoubleBucket<V> {
         path.exists()
     }
     /// Create a key in a sub-bucket
-    pub fn put(&self, sub: &str, key: &str, value: V) -> Result<()> {
+    pub fn put(&self, sub: &str, key: &str, value: &V) -> Result<()> {
         let mut path = self.dir.clone();
         path.push(self.maxify(sub));
         if !Path::new(&path).exists() {

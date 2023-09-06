@@ -1,7 +1,9 @@
+mod any_bucket;
 mod bucket;
 mod double_bucket;
 mod fs_utils;
 
+pub use any_bucket::AnyBucket;
 pub use bucket::Bucket;
 pub use double_bucket::DoubleBucket;
 
@@ -61,6 +63,18 @@ impl Fsdb {
         Ok(DoubleBucket::new(self.make_dir(&p2)?.into(), max_file_name))
     }
 
+    // Create new bucket with another level directory
+    pub fn any_bucket<V: Serialize + DeserializeOwned>(
+        &self,
+        max_file_name: Option<usize>,
+    ) -> Result<AnyBucket<V>> {
+        let mut dir = self.dir.clone();
+        if !Path::new(&dir).exists() {
+            fs::create_dir(dir.clone())?;
+        }
+        Ok(AnyBucket::new(dir, max_file_name))
+    }
+
     fn make_dir(&self, p: &str) -> Result<PathBuf> {
         let mut dir = self.dir.clone();
         dir.push(p);
@@ -73,7 +87,7 @@ impl Fsdb {
 
 #[cfg(test)]
 mod tests {
-    use crate::Fsdb;
+    use crate::{AnyBucket, Fsdb};
     use serde::{Deserialize, Serialize};
 
     #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
@@ -109,5 +123,46 @@ mod tests {
         assert_eq!(t1, t2);
         let list = b.list("sub1").expect("fail list");
         assert_eq!(list, vec!["key".to_string()]);
+    }
+
+    // cargo test test_any -- --nocapture
+    #[test]
+    fn test_any() {
+        let db = Fsdb::new("testdb/db3").expect("fail Fsdb::new");
+        let b: AnyBucket<Thing> = db.any_bucket(None).expect("fail bucket");
+
+        b.put("one", Thing { n: 1 }).unwrap();
+        let exists = b.exists("one");
+        assert_eq!(exists, true);
+
+        b.put("dir1/two", Thing { n: 2 }).unwrap();
+        let exists2 = b.exists("dir1/two");
+        assert_eq!(exists2, true);
+
+        b.remove("one").unwrap();
+        let exists = b.exists("one");
+        assert_eq!(exists, false);
+
+        b.remove("dir1/two").unwrap();
+        let exists2 = b.exists("dir1/two");
+        assert_eq!(exists2, false);
+
+        b.put("dir1/three", Thing { n: 3 }).unwrap();
+        let exists2 = b.exists("dir1/three");
+        assert_eq!(exists2, true);
+
+        let three = b.get("dir1/three").unwrap();
+        assert_eq!(three.n, 3);
+
+        let list1 = b.list("").unwrap();
+        assert_eq!(list1, vec!["dir1"]);
+
+        let list2 = b.list("dir1").unwrap();
+        assert_eq!(list2, vec!["three"]);
+
+        b.clear().unwrap();
+
+        let list3 = b.list("").unwrap();
+        assert_eq!(list3, Vec::<String>::new());
     }
 }

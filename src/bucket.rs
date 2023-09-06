@@ -33,29 +33,29 @@ impl<V: Serialize + DeserializeOwned> Bucket<V> {
     pub fn put(&self, key: &str, value: &V) -> Result<()> {
         let mut path = self.dir.clone();
         path.push(self.maxify(key));
-        fs_put(path, value)
+        fs_put(&path, value)
     }
     /// Get a key
     pub fn get(&self, key: &str) -> Result<V> {
         let mut path = self.dir.clone();
         path.push(self.maxify(key));
-        fs_get(path)
+        fs_get(&path)
     }
     /// Delete a file
     pub fn remove(&self, key: &str) -> Result<()> {
         let mut path = self.dir.clone();
         path.push(self.maxify(key));
-        fs_remove(path)
+        fs_remove(&path)
     }
     /// List keys in this bucket (or sub-buckets in this bucket)
     pub fn list(&self) -> Result<Vec<String>> {
         let path = self.dir.clone();
-        fs_list(path)
+        fs_list(&path)
     }
     /// Clear all keys in this bucket
     pub fn clear(&self) -> Result<()> {
         let path = self.dir.clone();
-        fs_clear(path)
+        fs_clear(&path)
     }
     fn maxify(&self, name: &str) -> String {
         maxify(name, self.max_file_name)

@@ -27,37 +27,63 @@ impl<V: Serialize + DeserializeOwned> AnyBucket<V> {
     }
     /// Check if a key exists
     pub fn exists(&self, key: &str) -> bool {
-        let pz = self.maxify_and_make(key);
+        let pz = self.maxify_and_make(Some(key));
         pz.exists()
     }
     /// Create a key
     pub fn put(&self, key: &str, value: &V) -> Result<()> {
-        let pz = self.maxify_and_make(key);
-        fs_put(pz, value)
+        let pz = self.maxify_and_make(Some(key));
+        fs_put(&pz, value)
     }
     /// Get a key
     pub fn get(&self, key: &str) -> Result<V> {
-        let path = self.maxify_and_make(key);
-        fs_get(path)
+        let path = self.maxify_and_make(Some(key));
+        fs_get(&path)
     }
     /// Delete a file
     pub fn remove(&self, key: &str) -> Result<()> {
-        let path = self.maxify_and_make(key);
-        fs_remove(path)
+        let path = self.maxify_and_make(Some(key));
+        fs_remove(&path)
     }
     /// List keys in this bucket (or sub-buckets in this bucket)
     pub fn list(&self, dir: &str) -> Result<Vec<String>> {
-        let path = self.maxify_and_make(dir);
-        fs_list(path)
+        let path = self.maxify_and_make(Some(dir));
+        fs_list(&path)
+    }
+    /// List keys in this bucket (or sub-buckets in this bucket)
+    pub fn list_all(&self) -> Result<Vec<String>> {
+        let mut entries = Vec::new();
+        self.list_recursive(None, &mut entries).unwrap();
+        Ok(entries)
     }
     /// Clear all keys in this bucket
     pub fn clear(&self) -> Result<()> {
         let path = self.dir.clone();
-        fs_clear(path)
+        fs_clear(&path)
     }
-    fn maxify_and_make(&self, name: &str) -> PathBuf {
+    fn list_recursive(&self, dir: Option<&str>, entries: &mut Vec<String>) -> Result<()> {
+        let path = self.maxify_and_make(dir);
+        let ls = fs_list(&path)?;
+        for l in ls {
+            let fullpath = format!("{}/{}", path.display(), l);
+            let meta = metadata(&fullpath).unwrap();
+            let this_path = match dir {
+                Some(d) => format!("{}/{}", d, l),
+                None => l,
+            };
+            if meta.is_dir() {
+                self.list_recursive(Some(&this_path), entries).unwrap();
+            } else if meta.is_file() {
+                entries.push(this_path)
+            }
+        }
+        Ok(())
+    }
+    fn maxify_and_make(&self, name_opt: Option<&str>) -> PathBuf {
         let mut fulldir = self.dir.clone();
-        fulldir.push(name);
+        if let Some(name) = name_opt {
+            fulldir.push(name);
+        }
         let path = fulldir.to_string_lossy().to_string();
         let parts = path.split("/").collect::<Vec<&str>>();
         let mut fin = String::from("");
@@ -67,6 +93,7 @@ impl<V: Serialize + DeserializeOwned> AnyBucket<V> {
                 fin.push_str("/");
             }
             fin.push_str(&pz);
+
             // create sub-dirs as we go
             if i != parts.len() - 1 {
                 if let Err(e) = fs_create_dir_if_not_exist(PathBuf::from(fin.clone())) {

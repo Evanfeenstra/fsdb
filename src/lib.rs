@@ -164,4 +164,29 @@ mod tests {
         let list3 = b.list("").unwrap();
         assert_eq!(list3, Vec::<String>::new());
     }
+
+    // cargo test test_list_recurse -- --nocapture
+    #[test]
+    fn test_list_recurse() {
+        let db = Fsdb::new("testdb/db4").expect("fail Fsdb::new");
+        let b: AnyBucket<Thing> = db.any_bucket(None).expect("fail bucket");
+
+        b.put("one/two/three/four/five", &Thing { n: 1 }).unwrap();
+        let exists = b.exists("one/two/three/four/five");
+        assert_eq!(exists, true);
+
+        b.put("one/two/three/four/six", &Thing { n: 1 }).unwrap();
+
+        b.put("one/two/hello", &Thing { n: 1 }).unwrap();
+
+        let l = b.list_all().unwrap();
+        assert_eq!(
+            l,
+            vec![
+                "one/two/three/four/six".to_string(),
+                "one/two/three/four/five".to_string(),
+                "one/two/hello".to_string(),
+            ]
+        );
+    }
 }

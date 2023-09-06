@@ -38,38 +38,38 @@ impl<V: Serialize + DeserializeOwned> DoubleBucket<V> {
             std::fs::create_dir(path.clone())?;
         }
         path.push(self.maxify(key));
-        fs_put(path, value)
+        fs_put(&path, value)
     }
     /// Get a key in a sub-bucket
     pub fn get(&self, sub: &str, key: &str) -> Result<V> {
         let mut path = self.dir.clone();
         path.push(self.maxify(sub));
         path.push(self.maxify(key));
-        fs_get(path)
+        fs_get(&path)
     }
     /// Delete a file in a sub-bucket
     pub fn remove(&self, sub: &str, key: &str) -> Result<()> {
         let mut path = self.dir.clone();
         path.push(self.maxify(sub));
         path.push(self.maxify(key));
-        fs_remove(path)
+        fs_remove(&path)
     }
     /// List keys in this bucket's sub-bucket
     pub fn list(&self, sub: &str) -> Result<Vec<String>> {
         let mut path = self.dir.clone();
         path.push(self.maxify(sub));
-        fs_list(path)
+        fs_list(&path)
     }
     /// Clear all keys in this sub-bucket
     pub fn clear(&self, sub: &str) -> Result<()> {
         let mut path = self.dir.clone();
         path.push(self.maxify(sub));
-        fs_clear(path)
+        fs_clear(&path)
     }
     /// Clear all keys in the bucket
     pub fn clear_all(&self) -> Result<()> {
         let path = self.dir.clone();
-        fs_clear(path)
+        fs_clear(&path)
     }
     fn maxify(&self, name: &str) -> String {
         maxify(name, self.max_file_name)

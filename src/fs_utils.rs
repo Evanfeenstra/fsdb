@@ -1,22 +1,22 @@
 use crate::Result;
 use rmp_serde::{decode, encode};
 use serde::{de::DeserializeOwned, Serialize};
-use std::fs;
+use std::fs::{self, Metadata};
 use std::path::PathBuf;
 
-pub fn fs_put<V: Serialize + DeserializeOwned>(path: PathBuf, value: &V) -> Result<()> {
+pub fn fs_put<V: Serialize + DeserializeOwned>(path: &PathBuf, value: &V) -> Result<()> {
     let mut f = fs::File::create(path.clone())?;
     encode::write(&mut f, value)?;
     Ok(())
 }
-pub fn fs_get<V: Serialize + DeserializeOwned>(path: PathBuf) -> Result<V> {
+pub fn fs_get<V: Serialize + DeserializeOwned>(path: &PathBuf) -> Result<V> {
     let f = fs::File::open(path)?;
     Ok(decode::from_read(f)?)
 }
-pub fn fs_remove(path: PathBuf) -> Result<()> {
+pub fn fs_remove(path: &PathBuf) -> Result<()> {
     Ok(std::fs::remove_file(path)?)
 }
-pub fn fs_list(path: PathBuf) -> Result<Vec<String>> {
+pub fn fs_list(path: &PathBuf) -> Result<Vec<String>> {
     let paths = fs::read_dir(path)?;
     let mut r = Vec::new();
     paths.for_each(|name| {
@@ -34,8 +34,11 @@ pub fn fs_create_dir_if_not_exist(path: PathBuf) -> Result<()> {
     }
     Ok(())
 }
-pub fn fs_clear(path: PathBuf) -> Result<()> {
+pub fn fs_clear(path: &PathBuf) -> Result<()> {
     Ok(fs::remove_dir_all(path)?)
+}
+pub fn metadata(path: &str) -> Result<Metadata> {
+    Ok(fs::metadata(path)?)
 }
 pub fn maxify(name: &str, max_file_name: Option<usize>) -> String {
     if let Some(max) = max_file_name {

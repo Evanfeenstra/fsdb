@@ -53,7 +53,7 @@ impl<V: Serialize + DeserializeOwned> AnyBucket<V> {
     /// List keys in this bucket (or sub-buckets in this bucket)
     pub fn list_all(&self) -> Result<Vec<String>> {
         let mut entries = Vec::new();
-        self.list_recursive(None, &mut entries).unwrap();
+        self.list_recursive(None, &mut entries)?;
         Ok(entries)
     }
     /// Clear all keys in this bucket
@@ -66,13 +66,13 @@ impl<V: Serialize + DeserializeOwned> AnyBucket<V> {
         let ls = fs_list(&path)?;
         for l in ls {
             let fullpath = format!("{}/{}", path.display(), l);
-            let meta = metadata(&fullpath).unwrap();
+            let meta = metadata(&fullpath)?;
             let this_path = match dir {
                 Some(d) => format!("{}/{}", d, l),
                 None => l,
             };
             if meta.is_dir() {
-                self.list_recursive(Some(&this_path), entries).unwrap();
+                self.list_recursive(Some(&this_path), entries)?;
             } else if meta.is_file() {
                 entries.push(this_path)
             }

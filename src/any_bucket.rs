@@ -31,7 +31,7 @@ impl<V: Serialize + DeserializeOwned> AnyBucket<V> {
         pz.exists()
     }
     /// Create a key
-    pub fn put(&self, key: &str, value: V) -> Result<()> {
+    pub fn put(&self, key: &str, value: &V) -> Result<()> {
         let pz = self.maxify_and_make(key);
         fs_put(pz, value)
     }

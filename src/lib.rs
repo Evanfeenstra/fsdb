@@ -68,7 +68,7 @@ impl Fsdb {
         &self,
         max_file_name: Option<usize>,
     ) -> Result<AnyBucket<V>> {
-        let mut dir = self.dir.clone();
+        let dir = self.dir.clone();
         if !Path::new(&dir).exists() {
             fs::create_dir(dir.clone())?;
         }
@@ -101,8 +101,7 @@ mod tests {
         let b = db.bucket("hi1234567890", Some(8)).expect("fail bucket");
         let t1 = Thing { n: 1 };
         println!("PUT NOW");
-        b.put("keythatisverylong", t1.clone())
-            .expect("failed to save");
+        b.put("keythatisverylong", &t1).expect("failed to save");
         println!("PUTTED!");
         let t2: Thing = b.get("keythatisverylong").expect("fail to load");
         println!("GOTTEN");
@@ -117,7 +116,7 @@ mod tests {
         let db = Fsdb::new("testdb/db2").expect("fail Fsdb::new");
         let b = db.double_bucket("hi", None).expect("fail bucket");
         let t1 = Thing { n: 1 };
-        b.put("sub1", "key", t1.clone()).expect("failed to save");
+        b.put("sub1", "key", &t1).expect("failed to save");
         let t2: Thing = b.get("sub1", "key").expect("fail to load");
         println!("t {:?}", t2.clone());
         assert_eq!(t1, t2);
@@ -131,11 +130,11 @@ mod tests {
         let db = Fsdb::new("testdb/db3").expect("fail Fsdb::new");
         let b: AnyBucket<Thing> = db.any_bucket(None).expect("fail bucket");
 
-        b.put("one", Thing { n: 1 }).unwrap();
+        b.put("one", &Thing { n: 1 }).unwrap();
         let exists = b.exists("one");
         assert_eq!(exists, true);
 
-        b.put("dir1/two", Thing { n: 2 }).unwrap();
+        b.put("dir1/two", &Thing { n: 2 }).unwrap();
         let exists2 = b.exists("dir1/two");
         assert_eq!(exists2, true);
 
@@ -147,7 +146,7 @@ mod tests {
         let exists2 = b.exists("dir1/two");
         assert_eq!(exists2, false);
 
-        b.put("dir1/three", Thing { n: 3 }).unwrap();
+        b.put("dir1/three", &Thing { n: 3 }).unwrap();
         let exists2 = b.exists("dir1/three");
         assert_eq!(exists2, true);
 

@@ -130,16 +130,16 @@ mod tests {
         let db = Fsdb::new("testdb/db3").expect("fail Fsdb::new");
         let b: AnyBucket<Thing> = db.any_bucket(None).expect("fail bucket");
 
-        b.put("one", &Thing { n: 1 }).unwrap();
-        let exists = b.exists("one");
+        b.put("thingone", &Thing { n: 1 }).unwrap();
+        let exists = b.exists("thingone");
         assert_eq!(exists, true);
 
         b.put("dir1/two", &Thing { n: 2 }).unwrap();
         let exists2 = b.exists("dir1/two");
         assert_eq!(exists2, true);
 
-        b.remove("one").unwrap();
-        let exists = b.exists("one");
+        b.remove("thingone").unwrap();
+        let exists = b.exists("thingone");
         assert_eq!(exists, false);
 
         b.remove("dir1/two").unwrap();

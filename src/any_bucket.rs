@@ -40,6 +40,11 @@ impl<V: Serialize + DeserializeOwned> AnyBucket<V> {
         let path = self.maxify_and_make(Some(key));
         fs_get(&path)
     }
+    /// Get a key
+    pub fn read_8(&self, key: &str) -> Result<[u8; 8]> {
+        let path = self.maxify_and_make(Some(key));
+        Ok(fs_read_8(&path)?)
+    }
     /// Delete a file
     pub fn remove(&self, key: &str) -> Result<()> {
         let path = self.maxify_and_make(Some(key));

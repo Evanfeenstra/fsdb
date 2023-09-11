@@ -197,11 +197,11 @@ mod tests {
         let b: AnyBucket<[u8; 8]> = db.any_bucket(None).expect("fail bucket");
         let value = [255u8; 8];
 
-        b.put("hi", &value).unwrap();
+        b.put_raw("hi", &value).unwrap();
         let v = b.read_8("hi").unwrap();
         assert_eq!(value, v);
 
-        let v2 = b.get("hi").unwrap();
-        assert_eq!(value, v2);
+        let v2 = b.get_raw("hi").unwrap();
+        assert_eq!(value.to_vec(), v2);
     }
 }

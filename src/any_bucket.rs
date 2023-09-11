@@ -35,10 +35,20 @@ impl<V: Serialize + DeserializeOwned> AnyBucket<V> {
         let pz = self.maxify_and_make(Some(key));
         fs_put(&pz, value)
     }
+    /// Create a key and write raw
+    pub fn put_raw(&self, key: &str, value: &[u8]) -> Result<()> {
+        let pz = self.maxify_and_make(Some(key));
+        fs_put_raw(&pz, value)
+    }
     /// Get a key
     pub fn get(&self, key: &str) -> Result<V> {
         let path = self.maxify_and_make(Some(key));
         fs_get(&path)
+    }
+    /// Get a key (raw value)
+    pub fn get_raw(&self, key: &str) -> Result<Vec<u8>> {
+        let path = self.maxify_and_make(Some(key));
+        Ok(fs_get_raw(&path)?)
     }
     /// Get a key
     pub fn read_8(&self, key: &str) -> Result<[u8; 8]> {

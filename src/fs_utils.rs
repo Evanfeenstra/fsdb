@@ -9,9 +9,17 @@ pub fn fs_put<V: Serialize + DeserializeOwned>(path: &PathBuf, value: &V) -> Res
     encode::write(&mut f, value)?;
     Ok(())
 }
+pub fn fs_put_raw(path: &PathBuf, value: &[u8]) -> Result<()> {
+    fs::write(path, value)?;
+    Ok(())
+}
 pub fn fs_get<V: Serialize + DeserializeOwned>(path: &PathBuf) -> Result<V> {
     let f = fs::File::open(path)?;
     Ok(decode::from_read(f)?)
+}
+pub fn fs_get_raw(path: &PathBuf) -> Result<Vec<u8>> {
+    let val = fs::read(path)?;
+    Ok(val)
 }
 pub fn fs_read_8(path: &PathBuf) -> Result<[u8; 8]> {
     use std::io::BufReader;

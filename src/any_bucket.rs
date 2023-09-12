@@ -101,21 +101,20 @@ impl<V: Serialize + DeserializeOwned> AnyBucket<V> {
         }
         let path = fulldir.to_string_lossy().to_string();
         let parts = path.split("/").collect::<Vec<&str>>();
-        let mut fin = String::from("");
+        let mut fin = PathBuf::new();
         for (i, part) in parts.iter().enumerate() {
-            let pz = maxify(part, self.max_file_name);
-            if i != 0 {
-                fin.push_str("/");
+            if part.len() == 0 {
+                continue;
             }
-            fin.push_str(&pz);
-
+            let pz = maxify(part, self.max_file_name);
+            fin.push(&pz);
             // create sub-dirs as we go
             if i != parts.len() - 1 {
-                if let Err(e) = fs_create_dir_if_not_exist(PathBuf::from(fin.clone())) {
+                if let Err(e) = fs_create_dir_if_not_exist(&fin) {
                     println!("ERROR {:?}", e)
                 }
             }
         }
-        PathBuf::from(fin)
+        fin
     }
 }

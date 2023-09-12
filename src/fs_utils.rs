@@ -45,7 +45,7 @@ pub fn fs_list(path: &PathBuf) -> Result<Vec<String>> {
     });
     Ok(r)
 }
-pub fn fs_create_dir_if_not_exist(path: PathBuf) -> Result<()> {
+pub fn fs_create_dir_if_not_exist(path: &PathBuf) -> Result<()> {
     if !path.exists() {
         fs::create_dir(path)?;
     }

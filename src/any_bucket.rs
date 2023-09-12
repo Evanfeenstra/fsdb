@@ -99,9 +99,10 @@ impl<V: Serialize + DeserializeOwned> AnyBucket<V> {
         if let Some(name) = name_opt {
             fulldir.push(name);
         }
+        let first_char = if self.dir.is_relative() { "" } else { "/" };
         let path = fulldir.to_string_lossy().to_string();
         let parts = path.split("/").collect::<Vec<&str>>();
-        let mut fin = PathBuf::new();
+        let mut fin = PathBuf::from(first_char);
         for (i, part) in parts.iter().enumerate() {
             if part.len() == 0 {
                 continue;

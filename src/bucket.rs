@@ -35,11 +35,23 @@ impl<V: Serialize + DeserializeOwned> Bucket<V> {
         path.push(self.maxify(key));
         fs_put(&path, value)
     }
+    /// Create a key and write raw
+    pub fn put_raw(&self, key: &str, value: &[u8]) -> Result<()> {
+        let mut path = self.dir.clone();
+        path.push(self.maxify(key));
+        fs_put_raw(&path, value)
+    }
     /// Get a key
     pub fn get(&self, key: &str) -> Result<V> {
         let mut path = self.dir.clone();
         path.push(self.maxify(key));
         fs_get(&path)
+    }
+    /// Get a key (raw value)
+    pub fn get_raw(&self, key: &str) -> Result<Vec<u8>> {
+        let mut path = self.dir.clone();
+        path.push(self.maxify(key));
+        fs_get_raw(&path)
     }
     /// Delete a file
     pub fn remove(&self, key: &str) -> Result<()> {
